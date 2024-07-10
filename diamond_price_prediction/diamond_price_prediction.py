@@ -50,21 +50,21 @@ for column in numeric_columns:
     lower_bound = Q1 - 1.5 * IQR
     upper_bound = Q3 + 1.5 * IQR
     
-    # Loại bỏ các hàng có giá trị ngoại lai trong cột hiện tại
+    # Loại bỏ các mẫu có giá trị ngoại lai trong cột hiện tại
     data_cleaned = data_cleaned[(data_cleaned[column] >= lower_bound) & (data_cleaned[column] <= upper_bound)]
  
 # Hiển thị số lượng hàng bị loại bỏ
-print(f"Số lượng hàng còn lại sau khi loại bỏ các giá trị ngoại lai: {len(data_cleaned)}")
-print(f"Số lượng hàng ban đầu: {len(data)}")
-print(f"Số lượng hàng bị loại bỏ: {len(data) - len(data_cleaned)}")
+print(f"Số lượng mẫu còn lại sau khi loại bỏ các giá trị ngoại lai: {len(data_cleaned)}")
+print(f"Số lượng mẫu ban đầu: {len(data)}")
+print(f"Số lượng mẫu bị loại bỏ: {len(data) - len(data_cleaned)}")
 print(data_cleaned.describe())
 
-# #các biểu đồ boxplot sau khi xử lý ngoại lai
-# for column in numeric_columns:
-#     plt.figure(figsize=(10, 6))
-#     sns.boxplot(y=data_cleaned[column])
-#     plt.title('Boxplot of ' + str(column))
-#     plt.show()
+#các biểu đồ boxplot sau khi xử lý ngoại lai
+for column in numeric_columns:
+    plt.figure(figsize=(10, 6))
+    sns.boxplot(y=data_cleaned[column])
+    plt.title('Boxplot of ' + str(column))
+    plt.show()
  
 #Mã hóa các cột phân loại
 label_encoders = {}
@@ -371,6 +371,7 @@ X_train_gbm, X_test_gbm, y_train_gbm, y_test_gbm = train_test_split(X_scaled, y,
 #         'objective': 'regression',
 #         'metric': 'mse',
 #         'data_sample_strategy':'goss',
+#         'boosting_type': 'gbdt',
 #         'colsample_bytree': colsample_bytree,
 #         'learning_rate': learning_rate,
 #         'max_depth': int(max_depth),
@@ -457,17 +458,6 @@ mse_gbm = mean_squared_error(y_test_gbm, y_pred_gbm)
 mae_gbm = mean_absolute_error(y_test_gbm, y_pred_gbm)
 rmse_gbm = root_mean_squared_error(y_test_gbm, y_pred_gbm)
 
-# print(data_cleaned.head())
-# # Hiển thị số lượng hàng bị loại bỏ
-# print(f"Số lượng hàng còn lại sau khi loại bỏ các giá trị ngoại lai: {len(data_cleaned)}")
-# print(f"Số lượng hàng ban đầu: {len(data)}")
-# print(f"Số lượng hàng bị loại bỏ: {len(data) - len(data_cleaned)}")
-# print(data_cleaned.describe())
-
-# print("Các tham số tốt nhất tìm được cho Decision Tree: ", best_params_dt)
-# print("Các tham số tốt nhất tìm được cho Random Forest: ", best_params_rf)
-# print("Các tham số tốt nhất tìm được cho XGBoost: ", best_params_xgb)
-# print("Các tham số tốt nhất tìm được cho LightGBM: ", best_params_gbm)
 #===================================================================================
 # Lưu scaler, mô hình và các label encoders
 joblib.dump(scaler, 'scaler.pkl')
@@ -478,7 +468,7 @@ scaler = joblib.load('scaler.pkl')
 le_cut = joblib.load('le_cut.pkl')
 le_color = joblib.load('le_color.pkl')
 le_clarity = joblib.load('le_clarity.pkl')
-
+#=========================================================================================
 # Tạo ứng dụng tkinter
 form = Tk()
 form.configure(bg='#fff')
@@ -509,13 +499,6 @@ frame00.pack(side=TOP,fill="x")
 label001 = Label(frame00, text="Các siêu tham số tốt nhất tìm được",font=("Arial Bold", 14), fg="red")
 label001.pack(side=LEFT, padx=10, pady=10)
 
-# frame01 = Frame(scrollable_frame )
-# frame01.pack(side=TOP,fill="x")
-# label01 = Label(frame01,font=("Arial Bold", 13),justify="left")
-# label01.pack(side=LEFT, padx=10, pady=10)
-# label01.configure(text="Số lượng hàng còn lại sau khi loại bỏ các giá trị ngoại lai: " + str(len(data_cleaned)) + '\n'
-#                        +"Số lượng hàng ban đầu: " + str(len(data)) + '\n'
-#                        +"Số lượng hàng bị loại bỏ: " + str(len(data) - len(data_cleaned)))
 # label06 = Label(frame01,font=("Arial Bold", 13),justify="left")
 # label06.pack(side=LEFT, padx=10, pady=10)
 # label06.configure(text="Thời gian chạy của mô hình Linear Regression: %.2f" % running_time_lr + "giây" + '\n'
@@ -631,7 +614,7 @@ def predict_linear_regression():
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
     except:
-        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin!")
+        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin và đúng định dạng!")
 #Dự đoán decision tree
 def predict_decision_tree():
     try:
@@ -646,7 +629,7 @@ def predict_decision_tree():
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
     except:
-        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin!")
+        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin và đúng định dạng!")
 #Dự đoán random forest
 def predict_random_forest():
     try:
@@ -661,7 +644,7 @@ def predict_random_forest():
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
     except:
-        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin!")
+        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin và đúng định dạng!")
 #Dự đoán XGBoost
 def predict_xgboost():
     try:
@@ -676,7 +659,7 @@ def predict_xgboost():
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
     except:
-        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin!")
+        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin và đúng định dạng!")
 #Dự đoán LightGBM
 def predict_light_gbm():
     try:
@@ -691,7 +674,7 @@ def predict_light_gbm():
             except Exception as e:
                 messagebox.showerror("Lỗi", f"Đã xảy ra lỗi: {e}")
     except:
-        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin!")
+        messagebox.showinfo("Lỗi!", "Bạn cần nhập đầy đủ thông tin và đúng định dạng!")
 #=========================================================================================================================
 #frame tiêu đề Các tiêu chí đánh giá
 frame = Frame(scrollable_frame)
@@ -704,7 +687,7 @@ frame0 = Frame(scrollable_frame, width=100)
 frame0.pack(side=TOP,fill="x")
 label_metrics_lr = Label(frame0,font=("Arial Bold", 11),justify="left")
 label_metrics_lr.pack(side=LEFT, padx = 10, pady = 10)
-label_metrics_lr.configure(text="Thuật toán Linear Regression: "+'\n'
+label_metrics_lr.configure(text="Mô hình Linear Regression: "+'\n'
                        +"R2 score: " + str(np.round(r2_score_lr,3)) +'\n'
                        +"Mean squared error: " + str(np.round(mse_lr, 3))+'\n'
                        +"Mean absolute error: " + str(np.round(mae_lr, 3))+'\n'    
@@ -712,7 +695,7 @@ label_metrics_lr.configure(text="Thuật toán Linear Regression: "+'\n'
 #Decision Tree
 label_metrics_dt = Label(frame0,font=("Arial Bold", 11),justify="left")
 label_metrics_dt.pack(side=LEFT, padx = 10, pady = 10)
-label_metrics_dt.configure(text="Thuật toán Decision Tree: "+'\n'
+label_metrics_dt.configure(text="Mô hình Decision Tree: "+'\n'
                        +"R2 score: " + str(np.round(r2_score_dt,3)) +'\n'
                        +"Mean squared error: " + str(np.round(mse_dt, 3))+'\n'
                        +"Mean absolute error: " + str(np.round(mae_dt, 3))+'\n' 
@@ -720,7 +703,7 @@ label_metrics_dt.configure(text="Thuật toán Decision Tree: "+'\n'
 #Random Forest
 label_metrics_rf = Label(frame0,font=("Arial Bold", 11),justify="left")
 label_metrics_rf.pack(side=LEFT, padx = 10, pady = 10)
-label_metrics_rf.configure(text="Thuật toán Random Forest: "+'\n'
+label_metrics_rf.configure(text="Mô hình Random Forest: "+'\n'
                        +"R2 score: " + str(np.round(r2_score_rf,3)) +'\n'
                        +"Mean squared error: " + str(np.round(mse_rf, 3))+'\n'
                        +"Mean absolute error: " + str(np.round(mae_rf, 3))+'\n'    
@@ -728,7 +711,7 @@ label_metrics_rf.configure(text="Thuật toán Random Forest: "+'\n'
 #XGBoost
 label_metrics_xgb = Label(frame0,font=("Arial Bold", 11),justify="left")
 label_metrics_xgb.pack(side=LEFT, padx = 10, pady = 10)
-label_metrics_xgb.configure(text="Thuật toán XGBoost: "+'\n'
+label_metrics_xgb.configure(text="Mô hình XGBoost: "+'\n'
                        +"R2 score: " + str(np.round(r2_score_xgb,3))+'\n'
                        +"Mean squared error: " + str(np.round(mse_xgb,3))+'\n'
                        +"Mean absolute error: " + str(np.round(mae_xgb, 3))+'\n'     
@@ -736,7 +719,7 @@ label_metrics_xgb.configure(text="Thuật toán XGBoost: "+'\n'
 #LightGBM
 label_metrics_ = Label(frame0,font=("Arial Bold", 11),justify="left")
 label_metrics_.pack(side=LEFT, padx = 10, pady = 10)
-label_metrics_.configure(text="Thuật toán LightGBM: "+'\n'
+label_metrics_.configure(text="Mô hình LightGBM: "+'\n'
                        +"R2 score: " + str(np.round(r2_score_gbm,3))+'\n'
                        +"Mean squared error: " + str(np.round(mse_gbm,3))+'\n'
                        +"Mean absolute error: " + str(np.round(mae_gbm, 3))+'\n'  
@@ -751,27 +734,27 @@ label1.pack(side=LEFT, padx=10, pady=10)
 frame1 = Frame(scrollable_frame)
 frame1.pack(side=TOP,fill="x")
 #Button cho Linear Regression
-btn_lr = Button(frame1, text = 'Linear Regression:',bg="#00FF80", bd=4, command = predict_linear_regression,width = 20)
+btn_lr = Button(frame1, text = 'Linear Regression:',bg="lightblue", bd=4, command = predict_linear_regression,width = 20)
 btn_lr.pack(side=LEFT, padx = 20, pady = 20)
 label_lr= Label(frame1, text='...')
 label_lr.pack(side=LEFT,fill="x", padx = 10, pady = 10)
 #Button cho Decision Tree
-btn_dt = Button(frame1, text = 'Decision Tree:',bg="#00FF80", bd=4, command = predict_decision_tree,width = 20)
+btn_dt = Button(frame1, text = 'Decision Tree:',bg="lightblue", bd=4, command = predict_decision_tree,width = 20)
 btn_dt.pack(side=LEFT, padx = 20, pady = 20)
 label_dt= Label(frame1, text='...')
 label_dt.pack(side=LEFT,fill="x", padx = 10, pady = 10)
 #Button cho Random Forest
-btn_rf = Button(frame1, text = 'Random Forest',bg="#00FF80", bd=4, command = predict_random_forest,width = 20)
+btn_rf = Button(frame1, text = 'Random Forest',bg="lightblue", bd=4, command = predict_random_forest,width = 20)
 btn_rf.pack(side=LEFT, padx = 20, pady = 20)
 label_rf= Label(frame1, text='...')
 label_rf.pack(side=LEFT,fill="x", padx = 10, pady = 10)
 #Button cho XGBoost
-btn_xgb = Button(frame1, text = 'XGBoost:',bg="#00FF80", bd=4, command = predict_xgboost,width = 20)
+btn_xgb = Button(frame1, text = 'XGBoost:',bg="lightblue", bd=4, command = predict_xgboost,width = 20)
 btn_xgb.pack(side=LEFT, padx = 20, pady = 20)
 label_xgb= Label(frame1, text='...')
 label_xgb.pack(side=LEFT,fill="x", padx = 10, pady = 10)
 #Button cho LightGBM
-btn_gbm = Button(frame1, text = 'LightGBM:',bg="#00FF80", bd=4, command = predict_light_gbm,width = 20)
+btn_gbm = Button(frame1, text = 'LightGBM:',bg="lightblue", bd=4, command = predict_light_gbm,width = 20)
 btn_gbm.pack(side=LEFT, padx = 20, pady = 20)
 label_gbm= Label(frame1, text='...')
 label_gbm.pack(side=LEFT,fill="x", padx = 10, pady = 10)
